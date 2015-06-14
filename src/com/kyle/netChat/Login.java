@@ -84,5 +84,6 @@ public class Login extends JFrame {
 	
 	private void login(String name, String pass){
 		dispose();
+		new Client();
 	}
 }
