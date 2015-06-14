@@ -4,6 +4,8 @@ import java.awt.BorderLayout;
 import java.awt.EventQueue;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.KeyAdapter;
+import java.awt.event.KeyEvent;
 
 import javax.swing.JFrame;
 import javax.swing.JPanel;
@@ -60,11 +62,35 @@ public class Login extends JFrame {
 		txtName.setBounds(57, 56, 161, 19);
 		contentPane.add(txtName);
 		txtName.setColumns(10);
+		txtName.addKeyListener(new KeyAdapter(){
+
+			@Override
+			public void keyPressed(KeyEvent e) {
+				// TODO Auto-generated method stub
+				if(e.getKeyCode() == KeyEvent.VK_ENTER && !(txtName.getText().equals(""))){
+						txtPassword.requestFocus();
+				}
+				
+			}
+			
+		}); //changes the input focus to the password field if enter is pressed
 		
 		txtPassword = new JTextField();
 		txtPassword.setBounds(60, 114, 161, 19);
 		contentPane.add(txtPassword);
 		txtPassword.setColumns(10);
+		txtPassword.addKeyListener(new KeyAdapter(){
+
+			@Override
+			public void keyPressed(KeyEvent e) {
+				// TODO Auto-generated method stub
+				if(e.getKeyCode() == KeyEvent.VK_ENTER && !(txtPassword.getText().equals(""))){
+					login(txtName.getText(), txtPassword.getText());	
+				}
+				
+			}
+			
+		}); //Key listener to log in if enter is pressed
 		
 		JButton btnLogin = new JButton("Log In");
 		btnLogin.setBounds(97, 167, 93, 25);
@@ -79,11 +105,11 @@ public class Login extends JFrame {
 				login(name, pass);
 				
 			}
-		});
+		}); //alternate button login
 	}
 	
 	private void login(String name, String pass){
 		dispose();
-		new Client();
+		new Client(name);
 	}
 }
