@@ -1,10 +1,12 @@
 package com.kyle.netChat;
 
 import java.awt.BorderLayout;
+import java.awt.Dimension;
 import java.awt.EventQueue;
 
 import javax.swing.JFrame;
 import javax.swing.JPanel;
+import javax.swing.JScrollPane;
 import javax.swing.border.EmptyBorder;
 
 import java.awt.GridBagLayout;
@@ -21,6 +23,7 @@ import java.awt.event.ActionListener;
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
+import java.io.IOException;
 
 import javax.swing.JButton;
 
@@ -29,8 +32,10 @@ public class Client extends JFrame {
 	private JPanel contentPane;
 	private JTextField txtMessage;
 	private JButton btnSend;
-	private JTextArea txtrMesshist;
+	public JTextArea txtrMesshist;
 	private String userName;
+	private static NetClient netCli;
+	
 
 	/**
 	 * Create the frame.
@@ -38,7 +43,9 @@ public class Client extends JFrame {
 	public Client(String userName) {
 		createWindow();
 		this.userName = userName;
-		updateConsole(userName+" just connected");
+		netCli = new NetClient(userName);
+		updateConsole(netCli.receiveMessage());
+
 		txtMessage.requestFocus();
 	}
 	
@@ -46,7 +53,7 @@ public class Client extends JFrame {
 	 * Updates the message history console with the new messages
 	 * @param str
 	 */
-	private void updateConsole(String str){
+	public void updateConsole(String str){
 		txtrMesshist.append(str+"\n");
 	}
 	
@@ -68,20 +75,25 @@ public class Client extends JFrame {
 		
 		txtrMesshist = new JTextArea();
 		txtrMesshist.setEditable(false);
-		GridBagConstraints gbc_txtrMesshist = new GridBagConstraints();
-		gbc_txtrMesshist.insets = new Insets(5, 5, 5, 5);
-		gbc_txtrMesshist.fill = GridBagConstraints.BOTH;
-		gbc_txtrMesshist.gridx = 1;
-		gbc_txtrMesshist.gridy = 1;
-		gbc_txtrMesshist.gridwidth = 2;
-		contentPane.add(txtrMesshist, gbc_txtrMesshist);
+		txtrMesshist.setLineWrap(true);
+		JScrollPane scroller = new JScrollPane(txtrMesshist, JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED,JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
+		scroller.setPreferredSize(new Dimension(400,440));
+		GridBagConstraints scrollConstraints = new GridBagConstraints();
+		scrollConstraints.insets = new Insets(5, 5, 0, 5);
+		scrollConstraints.fill = GridBagConstraints.BOTH;
+		scrollConstraints.gridx = 0;
+		scrollConstraints.gridy = 0;
+		scrollConstraints.gridwidth = 3;
+		scrollConstraints.gridheight =2;
+		contentPane.add(scroller, scrollConstraints);
 		
 		txtMessage = new JTextField();
 		GridBagConstraints gbc_txtMessage = new GridBagConstraints();
 		gbc_txtMessage.insets = new Insets(0, 15, 0, 5);
 		gbc_txtMessage.fill = GridBagConstraints.HORIZONTAL;
-		gbc_txtMessage.gridx = 1;
+		gbc_txtMessage.gridx = 0;
 		gbc_txtMessage.gridy = 2;
+		gbc_txtMessage.gridwidth = 2;
 		contentPane.add(txtMessage, gbc_txtMessage);
 		txtMessage.setColumns(10);
 		txtMessage.addKeyListener(new KeyAdapter(){
@@ -90,7 +102,8 @@ public class Client extends JFrame {
 			public void keyPressed(KeyEvent e) {
 				// TODO Auto-generated method stub
 				if(e.getKeyCode() == KeyEvent.VK_ENTER && !(txtMessage.getText().equals(""))){
-					updateConsole(userName+": "+txtMessage.getText());
+					netCli.sendMessage(txtMessage.getText());
+					updateConsole(netCli.receiveMessage());
 					txtMessage.setText("");			
 				}
 				
@@ -107,7 +120,9 @@ public class Client extends JFrame {
 			public void actionPerformed(ActionEvent e){
 				
 				if(e.getSource() == btnSend && !(txtMessage.getText().equals(""))){
-					updateConsole(userName+": "+txtMessage.getText());
+					//updateConsole(NetClient.communicate(userName+": "+txtMessage.getText())); //should send message
+					netCli.sendMessage(txtMessage.getText());
+					updateConsole(netCli.receiveMessage());
 					txtMessage.setText("");
 				}
 				
